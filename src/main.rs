@@ -39,8 +39,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             return Ok(());
         }
         let summoner: Summoner = response.json().await?;
-        // println!("{}", summoner.puuid);
-        // return Ok(());
 
         let url = format!(
             "https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{}/ids",
@@ -52,22 +50,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             return Ok(());
         }
         let matches: Vec<String> = response.json().await?;
-        // println!("{:?}", matches);
-        let match_id = &matches[0];
-        let url = format!(
-            "https://americas.api.riotgames.com/lol/match/v5/matches/{}",
-            match_id
-        );
-        let response = get(&client, &key, url).await?;
-        if !response.status().is_success() {
-            eprintln!("Request failed with status: {}", response.status());
-            return Ok(());
-        }
-        // let lolmatch: Match = response.json().await?;
-        // println!("{:?}", lolmatch);
-        // let lolmatch = response.text().await?;
-        // println!("{}", lolmatch);
-        let games: Vec<Match> = vec![];
+
+        let mut games: Vec<Match> = vec![];
         for matchid in matches {
             let url = format!(
                 "https://americas.api.riotgames.com/lol/match/v5/matches/{}",
@@ -79,9 +63,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 return Ok(());
             }
             let lolmatch: Match = response.json().await?;
-            // println!("{:?}", lolmatch);
-            // games.append(lolmatch.clone());
-            games.extend(lolmatch);
+            games.push(lolmatch);
         }
     }
 
