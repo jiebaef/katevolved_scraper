@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 #[allow(dead_code)]
 pub(crate) struct Summoner {

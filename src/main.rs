@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         let url = format!(
             "https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{}/ids",
-            summoner.puuid //"H7hZYwWJ-BhD8qEQ3anrGXW-HjU-EnWp_HBk4BvjyfL9fdIpnzvJce0zFmXa0d2iMawRHxjD9AsSJg"
+            summoner.puuid
         );
         let response = get(&client, &key, url).await?;
         if !response.status().is_success() {
@@ -67,16 +67,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // println!("{:?}", lolmatch);
         // let lolmatch = response.text().await?;
         // println!("{}", lolmatch);
-
+        let games: Vec<Match> = vec![];
         for matchid in matches {
-            let url = format!("{}", matchid);
+            let url = format!(
+                "https://americas.api.riotgames.com/lol/match/v5/matches/{}",
+                matchid
+            );
             let response = get(&client, &key, url).await?;
             if !response.status().is_success() {
                 eprintln!("Request failed with status: {}", response.status());
                 return Ok(());
             }
             let lolmatch: Match = response.json().await?;
-            println!("{:?}", lolmatch);
+            // println!("{:?}", lolmatch);
+            // games.append(lolmatch.clone());
+            games.extend(lolmatch);
         }
     }
 
