@@ -10,12 +10,6 @@ use std::env;
 use std::error::Error;
 use std::io::Read;
 
-// #[derive(Debug, Deserialize)]
-// #[serde(rename_all = "camelCase")]
-// struct SOMESTRUCT {
-
-// }
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();

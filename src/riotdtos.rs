@@ -2,6 +2,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Summoner {
     pub account_id: String,
     pub profile_icon_id: u32,
@@ -14,12 +15,14 @@ pub(crate) struct Summoner {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Match {
     pub metadata: Metadata,
     pub info: Info,
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Metadata {
     pub data_version: String,
     pub match_id: String,
@@ -27,6 +30,7 @@ pub(crate) struct Metadata {
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Info {
     pub game_creation: u64,
     pub game_duration: u64,
@@ -47,6 +51,7 @@ pub(crate) struct Info {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Participant {
     pub assists: u32,
     pub baron_kills: u32,
@@ -159,6 +164,7 @@ pub(crate) struct Participant {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Team {
     pub bans: Vec<Ban>,
     pub objectives: Objectives,
@@ -168,6 +174,7 @@ pub(crate) struct Team {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Perks {
     pub stat_perks: PerkStats,
     pub styles: Vec<PerkStyle>,
@@ -175,6 +182,7 @@ pub(crate) struct Perks {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct PerkStats {
     pub defense: u32,
     pub flex: u32,
@@ -183,6 +191,7 @@ pub(crate) struct PerkStats {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct PerkStyle {
     pub description: String,
     pub selections: Vec<PerkStyleSelection>,
@@ -191,6 +200,7 @@ pub(crate) struct PerkStyle {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct PerkStyleSelection {
     pub perk: u32,
     pub var1: u32,
@@ -200,6 +210,7 @@ pub(crate) struct PerkStyleSelection {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Ban {
     pub champion_id: u32,
     pub pick_turn: u32,
@@ -207,6 +218,7 @@ pub(crate) struct Ban {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Objectives {
     pub baron: Objective,
     pub champion: Objective,
@@ -218,6 +230,7 @@ pub(crate) struct Objectives {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct Objective {
     pub first: bool,
     pub kills: u32,
