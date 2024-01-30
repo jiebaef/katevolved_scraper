@@ -39,7 +39,13 @@ struct Metadata {
 }
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Info {}
+struct Info {
+    game_creation: u64,
+    game_duration: u64,
+    game_end_timestamp: u64,
+    game_id: u64,
+    game_mode: String,
+}
 // #[derive(Debug, Deserialize)]
 // #[serde(rename_all = "camelCase")]
 // struct SOMESTRUCT {
