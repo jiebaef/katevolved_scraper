@@ -1,56 +1,21 @@
+mod riotdtos;
+mod structs;
+use riotdtos::{Match, Summoner};
+use structs::Account;
+
 use dotenv::dotenv;
 use reqwest::header::USER_AGENT;
 use reqwest::{Client, Response};
-use serde::Deserialize;
 use std::env;
 use std::error::Error;
+use std::io::Read;
 
-#[derive(Debug)]
-struct Account {
-    region: String,
-    puuid: String,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Summoner {
-    account_id: String,
-    profile_icon_id: u32,
-    revision_date: u64,
-    name: String,
-    id: String,
-    puuid: String,
-    summoner_level: u64,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Match {
-    metadata: Metadata,
-    info: Info,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Metadata {
-    data_version: String,
-    match_id: String,
-    participants: Vec<String>,
-}
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Info {
-    game_creation: u64,
-    game_duration: u64,
-    game_end_timestamp: u64,
-    game_id: u64,
-    game_mode: String,
-}
 // #[derive(Debug, Deserialize)]
 // #[serde(rename_all = "camelCase")]
 // struct SOMESTRUCT {
 
 // }
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
@@ -94,6 +59,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         let matches: Vec<String> = response.json().await?;
         // println!("{:?}", matches);
+        let match_id = &matches[0];
+        let url = format!(
+            "https://americas.api.riotgames.com/lol/match/v5/matches/{}",
+            match_id
+        );
+        let response = get(&client, &key, url).await?;
+        if !response.status().is_success() {
+            eprintln!("Request failed with status: {}", response.status());
+            return Ok(());
+        }
+        // let lolmatch: Match = response.json().await?;
+        // println!("{:?}", lolmatch);
+        // let lolmatch = response.text().await?;
+        // println!("{}", lolmatch);
 
         for matchid in matches {
             let url = format!("{}", matchid);
@@ -102,7 +81,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 eprintln!("Request failed with status: {}", response.status());
                 return Ok(());
             }
-            let lolmatch = response.json().await?;
+            let lolmatch: Match = response.json().await?;
+            println!("{:?}", lolmatch);
         }
     }
 
@@ -116,4 +96,14 @@ async fn get(client: &Client, api_key: &str, url: String) -> Result<Response, Bo
         .header("X-Riot-Token", api_key)
         .send()
         .await?);
+}
+
+fn fixSerdeNaming() {
+    let path = "H:/Rust/katevolved_scraper/src/match.json";
+    let mut file = std::fs::File::open(path).expect("Failed to open file");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .expect("error when reading file");
+    let parsed: Match = serde_json::from_str(&contents).expect("Failed parsing");
+    println!("{:?}", parsed);
 }
