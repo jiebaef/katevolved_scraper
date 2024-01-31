@@ -1,14 +1,13 @@
 mod riotdtos;
 mod structs;
-use riotdtos::{Match, Summoner};
-use structs::Account;
 
 use dotenv::dotenv;
 use reqwest::header::USER_AGENT;
 use reqwest::{Client, Response};
-use std::env;
+use riotdtos::{Match, Summoner};
 use std::error::Error;
-use std::io::Read;
+use std::{env, vec};
+use structs::Account;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -26,7 +25,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })
         .collect();
 
+    let games = get_matches(accs, &key).await?;
+
+    println!("{:#?}", games);
+
+    Ok(())
+}
+
+async fn get_matches(accs: Vec<Account>, key: &str) -> Result<Vec<Match>, reqwest::Error> {
     let client = Client::new();
+    let mut games: Vec<Match> = vec![];
     for acc in accs {
         let url = format!(
             "https://{}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{}",
@@ -34,10 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         );
 
         let response = get(&client, &key, url).await?;
-        if !response.status().is_success() {
-            eprintln!("Request failed with status: {}", response.status());
-            return Ok(());
-        }
+        response.error_for_status_ref()?;
         let summoner: Summoner = response.json().await?;
 
         let url = format!(
@@ -45,32 +50,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
             summoner.puuid
         );
         let response = get(&client, &key, url).await?;
-        if !response.status().is_success() {
-            eprintln!("Request failed with status: {}", response.status());
-            return Ok(());
-        }
+        response.error_for_status_ref()?;
         let matches: Vec<String> = response.json().await?;
 
-        let mut games: Vec<Match> = vec![];
         for matchid in matches {
             let url = format!(
                 "https://americas.api.riotgames.com/lol/match/v5/matches/{}",
                 matchid
             );
             let response = get(&client, &key, url).await?;
-            if !response.status().is_success() {
-                eprintln!("Request failed with status: {}", response.status());
-                return Ok(());
-            }
+            response.error_for_status_ref()?;
             let lolmatch: Match = response.json().await?;
             games.push(lolmatch);
         }
     }
 
-    Ok(())
+    Ok(games)
 }
 
-async fn get(client: &Client, api_key: &str, url: String) -> Result<Response, Box<dyn Error>> {
+async fn get(client: &Client, api_key: &str, url: String) -> Result<Response, reqwest::Error> {
     return Ok(client
         .get(url)
         .header(USER_AGENT, "Rust App 1")
@@ -79,12 +77,12 @@ async fn get(client: &Client, api_key: &str, url: String) -> Result<Response, Bo
         .await?);
 }
 
-fn fixSerdeNaming() {
-    let path = "H:/Rust/katevolved_scraper/src/match.json";
-    let mut file = std::fs::File::open(path).expect("Failed to open file");
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)
-        .expect("error when reading file");
-    let parsed: Match = serde_json::from_str(&contents).expect("Failed parsing");
-    println!("{:?}", parsed);
-}
+// fn fixSerdeNaming() {
+//     let path = "H:/Rust/katevolved_scraper/src/match.json";
+//     let mut file = std::fs::File::open(path).expect("Failed to open file");
+//     let mut contents = String::new();
+//     file.read_to_string(&mut contents)
+//         .expect("error when reading file");
+//     let parsed: Match = serde_json::from_str(&contents).expect("Failed parsing");
+//     println!("{:?}", parsed);
+// }
