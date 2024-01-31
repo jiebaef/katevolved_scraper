@@ -19,9 +19,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .split("|")
         .map(|pair| {
             let mut parts = pair.split(":");
+
             let region = parts.next().unwrap_or_default().to_string();
-            let puuid = parts.next().unwrap_or_default().to_string();
-            Account { region, puuid }
+
+            let name_and_tag = parts.next().unwrap_or_default().to_string();
+
+            let mut name_and_tag = name_and_tag.split("#");
+            let name = name_and_tag.next().unwrap_or_default().to_string();
+            let tag = name_and_tag.next().unwrap_or_default().to_string();
+
+            Account { region, name, tag }
         })
         .collect();
 
@@ -37,10 +44,17 @@ async fn get_matches(accs: Vec<Account>, key: &str) -> Result<Vec<Match>, reqwes
     let mut games: Vec<Match> = vec![];
     for acc in accs {
         let url = format!(
-            "https://{}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{}",
-            acc.region, acc.puuid
+            "https://europe.api.riotgames.com/riot/account/v1/accounts/br-riot-id/{}/{}",
+            acc.name, acc.tag
         );
+        let response = get(&client, &key, url).await?;
+        response.error_for_status_ref()?;
+        let puuid: String = response.json().await?;
 
+        let url = format!(
+            "https://{}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{}",
+            acc.region, puuid
+        );
         let response = get(&client, &key, url).await?;
         response.error_for_status_ref()?;
         let summoner: Summoner = response.json().await?;
@@ -61,8 +75,11 @@ async fn get_matches(accs: Vec<Account>, key: &str) -> Result<Vec<Match>, reqwes
             let response = get(&client, &key, url).await?;
             response.error_for_status_ref()?;
             let lolmatch: Match = response.json().await?;
+
             games.push(lolmatch);
         }
+        let t: Vec<Match> = vec![];
+        games.extend(t);
     }
 
     Ok(games)
